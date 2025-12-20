@@ -1,79 +1,70 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Play, Calendar, MessageSquare, Star, ArrowUpRight, Lock, X, Send, CheckCircle, Video, Activity } from 'lucide-react';
-import { ChartDataPoint, ChatMessage } from '../types';
-import { sendMessageToGraziella } from '../services/geminiService';
+import { Play, Calendar, MessageSquare, Star, ArrowUpRight, Lock, X, Send, CheckCircle, Video, Activity, LogOut } from 'lucide-react';
+import { ChartDataPoint } from '../types';
+import { checkInAPI, progressAPI } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
-const MOCK_DATA: ChartDataPoint[] = [
-  { day: 'Mon', weight: 64.5, energy: 7 },
-  { day: 'Tue', weight: 64.2, energy: 8 },
-  { day: 'Wed', weight: 63.9, energy: 6 },
-  { day: 'Thu', weight: 63.8, energy: 9 },
-  { day: 'Fri', weight: 63.5, energy: 9 },
-  { day: 'Sat', weight: 63.4, energy: 10 },
-  { day: 'Sun', weight: 63.2, energy: 10 },
-];
+interface DashboardProps {
+  onAdminToggle?: () => void;
+}
 
-const Dashboard: React.FC = () => {
-  const [isChatOpen, setIsChatOpen] = useState(false);
+const Dashboard: React.FC<DashboardProps> = ({ onAdminToggle }) => {
+  const { user, logout } = useAuth();
   const [isCheckInOpen, setIsCheckInOpen] = useState(false);
   const [checkInStep, setCheckInStep] = useState<'form' | 'success'>('form');
+  const [progressData, setProgressData] = useState<ChartDataPoint[]>([]);
+  const [loadingProgress, setLoadingProgress] = useState(true);
 
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: 'welcome',
-      role: 'model',
-      text: "Good morning, Sophia. I noticed your energy levels spiked on Thursday. Excellent work trusting the protocol. How are you feeling today?",
-      timestamp: new Date()
-    }
-  ]);
-  const [inputMessage, setInputMessage] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const [checkInData, setCheckInData] = useState({
+    weight: '',
+    energyLevel: '',
+    notes: ''
+  });
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, isChatOpen]);
+    loadProgressData();
+  }, []);
 
-  const handleSendMessage = async () => {
-    if (!inputMessage.trim()) return;
-
-    const userMsg: ChatMessage = {
-      id: Date.now().toString(),
-      role: 'user',
-      text: inputMessage,
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, userMsg]);
-    setInputMessage('');
-    setIsTyping(true);
-
-    const history = messages.map(m => ({ role: m.role, text: m.text }));
-    const responseText = await sendMessageToGraziella(userMsg.text, history);
-
-    const aiMsg: ChatMessage = {
-      id: (Date.now() + 1).toString(),
-      role: 'model',
-      text: responseText,
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, aiMsg]);
-    setIsTyping(false);
+  const loadProgressData = async () => {
+    try {
+      setLoadingProgress(true);
+      const data = await progressAPI.getData();
+      setProgressData(data.length > 0 ? data : [
+        { day: 'Mon', weight: 0, energy: 0 },
+        { day: 'Tue', weight: 0, energy: 0 },
+        { day: 'Wed', weight: 0, energy: 0 },
+        { day: 'Thu', weight: 0, energy: 0 },
+        { day: 'Fri', weight: 0, energy: 0 },
+        { day: 'Sat', weight: 0, energy: 0 },
+        { day: 'Sun', weight: 0, energy: 0 },
+      ]);
+    } catch (error) {
+      console.error('Failed to load progress data:', error);
+    } finally {
+      setLoadingProgress(false);
+    }
   };
 
-  const submitCheckIn = (e: React.FormEvent) => {
+  const submitCheckIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    setCheckInStep('success');
-    setTimeout(() => {
-      setIsCheckInOpen(false);
-      setCheckInStep('form');
-    }, 4000);
+    try {
+      await checkInAPI.submit(
+        parseFloat(checkInData.weight),
+        parseInt(checkInData.energyLevel),
+        checkInData.notes
+      );
+      setCheckInStep('success');
+      setCheckInData({ weight: '', energyLevel: '', notes: '' });
+      loadProgressData();
+      setTimeout(() => {
+        setIsCheckInOpen(false);
+        setCheckInStep('form');
+      }, 4000);
+    } catch (error) {
+      console.error('Check-in failed:', error);
+      alert('Failed to submit check-in. Please try again.');
+    }
   };
 
   return (
@@ -92,7 +83,7 @@ const Dashboard: React.FC = () => {
           </div>
           <div className="flex-1 text-center md:text-left">
             <h1 className="font-serif text-3xl md:text-4xl text-brand-navy mb-2">
-              Good morning, Sophia.
+              Good morning, {user?.name || 'Member'}.
             </h1>
             <div className="bg-brand-blue/30 inline-block px-4 py-3 rounded-r-xl border-l-4 border-brand-gold">
               <p className="font-serif italic text-brand-navy/80 text-lg">
@@ -102,19 +93,28 @@ const Dashboard: React.FC = () => {
             <p className="text-xs text-brand-gold mt-2 tracking-widest uppercase font-bold">— Graziella</p>
           </div>
           <div className="flex flex-col gap-3 w-full md:w-auto shrink-0">
-            <button 
-              onClick={() => setIsChatOpen(true)}
-              className="group flex items-center justify-center gap-2 bg-brand-navy hover:bg-brand-gold transition-all duration-300 text-white px-8 py-4 uppercase tracking-widest text-xs font-bold shadow-lg shadow-brand-navy/10"
-            >
-              <MessageSquare className="w-4 h-4" />
-              Message Graziella
-            </button>
-            <button 
+            <button
               onClick={() => setIsCheckInOpen(true)}
-              className="flex items-center justify-center gap-2 bg-white border border-brand-navy/10 hover:border-brand-gold hover:text-brand-gold transition-all duration-300 text-brand-navy px-8 py-3 uppercase tracking-widest text-xs font-bold"
+              className="flex items-center justify-center gap-2 bg-brand-navy hover:bg-brand-gold transition-all duration-300 text-white px-8 py-4 uppercase tracking-widest text-xs font-bold shadow-lg shadow-brand-navy/10"
             >
               <CheckCircle className="w-4 h-4" />
               Weekly Check-In
+            </button>
+            {onAdminToggle && (
+              <button
+                onClick={onAdminToggle}
+                className="flex items-center justify-center gap-2 bg-brand-gold hover:bg-brand-navy text-white transition-all duration-300 px-8 py-3 uppercase tracking-widest text-xs font-bold"
+              >
+                <Star className="w-4 h-4" />
+                Admin Panel
+              </button>
+            )}
+            <button
+              onClick={logout}
+              className="flex items-center justify-center gap-2 bg-white border border-brand-navy/10 hover:border-brand-gold hover:text-brand-gold transition-all duration-300 text-brand-navy px-8 py-3 uppercase tracking-widest text-xs font-bold"
+            >
+              <LogOut className="w-4 h-4" />
+              Sign Out
             </button>
           </div>
         </div>
@@ -188,8 +188,13 @@ const Dashboard: React.FC = () => {
                     </span>
                 </div>
                 <div className="h-[300px] w-full">
+                  {loadingProgress ? (
+                    <div className="flex items-center justify-center h-full text-brand-navy/40">
+                      Loading data...
+                    </div>
+                  ) : (
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={MOCK_DATA}>
+                    <LineChart data={progressData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
                       <XAxis dataKey="day" stroke="#94a3b8" tick={{fontSize: 12, fill: '#64748b'}} tickLine={false} axisLine={false} />
                       <YAxis stroke="#94a3b8" tick={{fontSize: 12, fill: '#64748b'}} tickLine={false} axisLine={false} domain={['dataMin - 1', 'dataMax + 1']} />
@@ -208,6 +213,7 @@ const Dashboard: React.FC = () => {
                       />
                     </LineChart>
                   </ResponsiveContainer>
+                  )}
                 </div>
              </div>
           </div>
@@ -270,79 +276,6 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Chat Overlay */}
-      {isChatOpen && (
-        <div className="fixed inset-0 bg-brand-navy/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white w-full max-w-lg h-[600px] shadow-2xl flex flex-col relative overflow-hidden">
-            
-            {/* Chat Header */}
-            <div className="p-4 border-b border-brand-navy/5 flex justify-between items-center bg-brand-cream">
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=2776&auto=format&fit=crop" className="w-10 h-10 rounded-full border border-white shadow-sm object-cover" alt="G" />
-                  <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border border-white"></div>
-                </div>
-                <div>
-                  <h3 className="font-serif text-brand-navy font-bold">Graziella De Souza</h3>
-                  <p className="text-[10px] text-brand-gold uppercase tracking-wider font-bold">Private Line</p>
-                </div>
-              </div>
-              <button onClick={() => setIsChatOpen(false)} className="text-brand-navy/40 hover:text-brand-navy">
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-white">
-              {messages.map((msg) => (
-                <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[85%] p-5 text-sm leading-relaxed shadow-sm ${
-                    msg.role === 'user' 
-                      ? 'bg-brand-navy text-white rounded-t-xl rounded-bl-xl' 
-                      : 'bg-brand-cream text-brand-navy border border-brand-navy/5 rounded-t-xl rounded-br-xl'
-                  }`}>
-                    {msg.text}
-                    {msg.role === 'model' && (
-                       <div className="mt-3 text-[10px] text-brand-gold uppercase tracking-wider text-right font-bold">- G</div>
-                    )}
-                  </div>
-                </div>
-              ))}
-              {isTyping && (
-                <div className="flex justify-start">
-                  <div className="bg-brand-cream text-brand-navy/50 px-4 py-2 rounded-full text-xs italic animate-pulse">
-                    Graziella is writing...
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Input */}
-            <div className="p-4 bg-white border-t border-brand-navy/5">
-              <div className="relative">
-                <input 
-                  type="text" 
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                  placeholder="Message Graziella directly..."
-                  className="w-full bg-brand-cream border border-brand-navy/5 text-brand-navy pl-5 pr-12 py-4 focus:outline-none focus:border-brand-gold/50 transition-colors placeholder:text-brand-navy/30 text-sm rounded-lg"
-                />
-                <button 
-                  onClick={handleSendMessage}
-                  disabled={!inputMessage.trim()}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-brand-gold hover:text-brand-navy disabled:opacity-50 transition-colors"
-                >
-                  <Send className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      )}
-
       {/* Check-In Modal */}
       {isCheckInOpen && (
         <div className="fixed inset-0 bg-brand-navy/60 z-50 flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in duration-300">
@@ -363,15 +296,36 @@ const Dashboard: React.FC = () => {
                   <form onSubmit={submitCheckIn} className="space-y-6">
                     <div>
                       <label className="block text-xs uppercase tracking-widest text-brand-navy font-bold mb-2">Current Weight (kg)</label>
-                      <input type="number" step="0.1" className="w-full bg-brand-cream border border-brand-navy/10 p-4 text-brand-navy focus:border-brand-gold focus:outline-none font-serif text-lg" required />
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={checkInData.weight}
+                        onChange={(e) => setCheckInData({...checkInData, weight: e.target.value})}
+                        className="w-full bg-brand-cream border border-brand-navy/10 p-4 text-brand-navy focus:border-brand-gold focus:outline-none font-serif text-lg"
+                        required
+                      />
                     </div>
                     <div>
                       <label className="block text-xs uppercase tracking-widest text-brand-navy font-bold mb-2">Energy Level (1-10)</label>
-                      <input type="number" min="1" max="10" className="w-full bg-brand-cream border border-brand-navy/10 p-4 text-brand-navy focus:border-brand-gold focus:outline-none font-serif text-lg" required />
+                      <input
+                        type="number"
+                        min="1"
+                        max="10"
+                        value={checkInData.energyLevel}
+                        onChange={(e) => setCheckInData({...checkInData, energyLevel: e.target.value})}
+                        className="w-full bg-brand-cream border border-brand-navy/10 p-4 text-brand-navy focus:border-brand-gold focus:outline-none font-serif text-lg"
+                        required
+                      />
                     </div>
                     <div>
                       <label className="block text-xs uppercase tracking-widest text-brand-navy font-bold mb-2">Notes for Graziella</label>
-                      <textarea rows={4} className="w-full bg-brand-cream border border-brand-navy/10 p-4 text-brand-navy focus:border-brand-gold focus:outline-none placeholder:text-brand-navy/30 text-sm" placeholder="Be honest. How was your adherence?" required></textarea>
+                      <textarea
+                        rows={4}
+                        value={checkInData.notes}
+                        onChange={(e) => setCheckInData({...checkInData, notes: e.target.value})}
+                        className="w-full bg-brand-cream border border-brand-navy/10 p-4 text-brand-navy focus:border-brand-gold focus:outline-none placeholder:text-brand-navy/30 text-sm"
+                        placeholder="Be honest. How was your adherence?"
+                      />
                     </div>
                     <button type="submit" className="w-full bg-brand-navy text-white py-4 uppercase tracking-widest text-xs font-bold hover:bg-brand-gold transition-colors shadow-lg">
                       Submit to Graziella

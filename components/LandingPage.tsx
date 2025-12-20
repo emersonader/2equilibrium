@@ -1,10 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ChevronRight, Star, Check, PlayCircle, ArrowRight } from 'lucide-react';
 import { PricingTier, TierLevel } from '../types';
-
-interface LandingPageProps {
-  onLogin: () => void;
-}
+import AuthModal from './AuthModal';
 
 const TIERS: PricingTier[] = [
   {
@@ -37,8 +34,11 @@ const TIERS: PricingTier[] = [
   }
 ];
 
-const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
+const LandingPage: React.FC = () => {
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
   return (
+    <>
     <div className="font-sans text-brand-navy bg-brand-cream overflow-x-hidden selection:bg-brand-gold selection:text-white">
       
       {/* Navigation */}
@@ -47,7 +47,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
           <div className="font-serif text-2xl font-bold tracking-tight text-brand-navy">
             2EQUILIBRIUM <span className="text-brand-gold text-lg italic font-normal ml-1">GDS</span>
           </div>
-          <button onClick={onLogin} className="text-xs uppercase tracking-[0.2em] font-medium hover:text-brand-gold transition-colors">
+          <button onClick={() => setIsAuthModalOpen(true)} className="text-xs uppercase tracking-[0.2em] font-medium hover:text-brand-gold transition-colors">
             Member Access
           </button>
         </div>
@@ -230,6 +230,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
         <p className="text-brand-navy/30 text-xs">© 2025 Graziella De Souza. All Rights Reserved.</p>
       </footer>
     </div>
+
+    <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+    </>
   );
 };
 
