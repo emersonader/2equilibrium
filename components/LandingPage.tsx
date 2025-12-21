@@ -45,7 +45,7 @@ const LandingPage: React.FC = () => {
       <nav className="fixed w-full z-50 bg-brand-cream/90 backdrop-blur-md border-b border-brand-navy/5">
         <div className="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
           <div className="font-serif text-2xl font-bold tracking-tight text-brand-navy">
-            2EQUILIBRIUM <span className="text-brand-gold text-lg italic font-normal ml-1">GDS</span>
+            2EQUILIBRIUM
           </div>
           <button onClick={() => setIsAuthModalOpen(true)} className="text-xs uppercase tracking-[0.2em] font-medium hover:text-brand-gold transition-colors">
             Member Access
@@ -63,14 +63,10 @@ const LandingPage: React.FC = () => {
 
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
           <div className="animate-fade-in-up">
-            <span className="block text-brand-gold uppercase tracking-[0.3em] text-xs font-bold mb-6 flex items-center gap-3">
-              <span className="w-8 h-px bg-brand-gold"></span>
-              Private Coaching
-            </span>
             <h1 className="font-serif text-6xl md:text-7xl lg:text-8xl leading-[0.9] text-brand-navy mb-8">
-              Clarity.<br />
-              <span className="italic text-brand-gold/80">Equilibrium.</span><br />
-              Graziella.
+              Rethink,<br />
+              Readjust,<br />
+              <span className="italic text-brand-gold/80">Rebalance your life.</span>
             </h1>
             <p className="text-brand-navy/70 text-lg md:text-xl leading-relaxed max-w-lg mb-10 font-light border-l-2 border-brand-gold pl-6">
               I’m selectively opening spots to coach you directly using my proven 2Equilibrium Method. This isn't a program. It is direct access to me.
