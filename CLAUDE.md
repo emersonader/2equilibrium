@@ -6,6 +6,7 @@
 
 **Tech Stack (100% Free):**
 - Frontend: React 19 + TypeScript + Vite
+- Routing: React Router v6
 - Backend: Node.js + Express
 - Database: SQLite (file-based)
 - Authentication: JWT
@@ -14,11 +15,14 @@
 
 ## Features
 
-### 🎨 Landing Page
-- Beautiful marketing page with pricing tiers
+### 🌐 Multi-Page Website
+- **Home Page (/)**: Welcome hero, philosophy, bio, features, pricing tiers
+- **About Page (/about)**: Graziella's credentials, philosophy, certifications
+- **Approach Page (/approach)**: 3-step process, FAQ section
+- Responsive navigation with mobile hamburger menu
+- Shared header and footer across all public pages
+- URL-based routing with React Router v6
 - Three membership levels: Circle ($97/mo), Mentorship ($297/mo), Private ($597/mo)
-- Testimonials section
-- "A Week With Graziella" video series preview
 - Fully responsive design
 
 ### 👤 User Dashboard
@@ -118,10 +122,16 @@ messages:
 ```
 2equilibrium-by-graziella-de-souza/
 ├── components/
-│   ├── AdminDashboard.tsx      # Admin panel interface
+│   ├── AboutPage.tsx            # About Graziella page
+│   ├── AdminDashboard.tsx       # Admin panel interface
+│   ├── ApproachPage.tsx         # Our approach page
 │   ├── AuthModal.tsx            # Login/register modal
 │   ├── Dashboard.tsx            # Member dashboard
-│   └── LandingPage.tsx          # Marketing page
+│   ├── Footer.tsx               # Shared footer component
+│   ├── HomePage.tsx             # Home/landing page
+│   ├── LandingPage.tsx          # Legacy landing page (deprecated)
+│   ├── PublicLayout.tsx         # Layout wrapper for public pages
+│   └── PublicNavigation.tsx     # Shared navigation component
 ├── context/
 │   └── AuthContext.tsx          # Authentication state
 ├── data/
@@ -143,6 +153,7 @@ messages:
 │   └── api.ts                   # User API client
 ├── .env.local                   # Environment variables
 ├── ADMIN.md                     # Admin features guide
+├── CLAUDE.md                    # This file
 ├── EMAIL_SETUP.md               # Email configuration guide
 └── package.json
 ```
@@ -163,6 +174,39 @@ messages:
 - `GET /api/admin/members/:id` - Get member details
 - `GET /api/admin/checkins` - List all check-ins
 - `GET /api/admin/stats` - Dashboard statistics
+
+## Routing & Navigation
+
+### Frontend Routes (React Router v6)
+
+**Public Routes** (accessible to all):
+- `/` - Home page (HomePage.tsx)
+- `/about` - About Graziella page (AboutPage.tsx)
+- `/approach` - Our approach page (ApproachPage.tsx)
+
+**Protected Routes** (authentication required):
+- `/dashboard` - User dashboard (Dashboard.tsx)
+  - Shows "Admin Panel" button for admin users
+  - Displays check-in form, progress charts, and feedback cards
+- `/admin` - Admin panel (AdminDashboard.tsx)
+  - Admin-only access (redirects non-admins to /dashboard)
+  - Shows "My Dashboard" button to return to user view
+  - Displays member management and analytics
+
+**Route Protection:**
+- PrivateRoute component wraps protected routes
+- Unauthenticated users redirected to `/` (home)
+- Non-admin users attempting `/admin` redirected to `/dashboard`
+- Authentication state managed by AuthContext
+- JWT token stored in localStorage
+
+**Navigation Components:**
+- **PublicNavigation**: Shared header with menu and auth button
+  - Desktop: Horizontal menu with active state highlighting
+  - Mobile: Hamburger menu with slide-in overlay
+  - Shows: Home | About | Approach | Member Access
+- **PublicLayout**: Wrapper for public pages (nav + content + footer)
+- **Footer**: Shared footer with navigation links
 
 ## Available Scripts
 
@@ -226,12 +270,14 @@ See `EMAIL_SETUP.md` for detailed instructions on setting up Gmail notifications
 ## Data Flow
 
 ### User Registration Flow
-1. User submits form → Frontend validates
-2. API creates user with hashed password
-3. JWT token generated and returned
-4. Welcome email sent (if enabled)
-5. Admin notified of new member (if enabled)
-6. User redirected to dashboard
+1. User visits any public page (/, /about, /approach)
+2. User clicks "Member Access" → AuthModal opens
+3. User submits registration form → Frontend validates
+4. API creates user with hashed password
+5. JWT token generated and returned
+6. Welcome email sent (if enabled)
+7. Admin notified of new member (if enabled)
+8. User navigated to `/dashboard` via React Router
 
 ### Check-In Flow
 1. User fills check-in form
@@ -241,10 +287,12 @@ See `EMAIL_SETUP.md` for detailed instructions on setting up Gmail notifications
 5. Success message shown
 
 ### Admin Access Flow
-1. User logs in normally
-2. If user.isAdmin, "Admin Panel" button shown
-3. Click toggles between user and admin view
-4. Admin API calls protected by middleware
+1. Admin user logs in normally → Redirected to `/dashboard`
+2. "Admin Panel" button shown in dashboard (only for admins)
+3. Click navigates to `/admin` route
+4. AdminDashboard component loads with analytics
+5. "My Dashboard" button available to return to `/dashboard`
+6. Admin API calls protected by middleware (requireAdmin check)
 
 ## Future Features (Planned)
 
@@ -356,13 +404,34 @@ For production, you'll want to:
 4. Use production email service
 5. Add monitoring (Sentry)
 
+## Recent Updates
+
+### January 2026 - Multi-Page Website Migration
+- **Added React Router v6** for URL-based navigation
+- **Created three public pages:**
+  - Home: Welcome hero, philosophy, Graziella bio, features, pricing
+  - About: Full credentials, certifications, philosophy
+  - Approach: 3-step process, interactive FAQ
+- **Built navigation system:**
+  - PublicNavigation with desktop/mobile responsive menu
+  - Active page highlighting
+  - Shared PublicLayout wrapper
+  - Footer with navigation links
+- **Migrated content** from existing 2equilibrium.com website
+- **Enhanced routing:**
+  - Public routes: /, /about, /approach
+  - Protected routes: /dashboard, /admin
+  - PrivateRoute component for authentication
+  - Seamless navigation between admin and user views
+- **Fixed content typos** throughout all pages
+
 ## Credits
 
 Built with Claude Code by Anthropic.
 
 **Created for:** Emerson Ader
 **Project:** 2Equilibrium by Graziella De Souza
-**Date:** December 2024
+**Date:** December 2024 - January 2026
 
 ---
 
