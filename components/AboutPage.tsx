@@ -10,7 +10,7 @@ const AboutPage: React.FC = () => {
           <div className="relative h-[500px] lg:h-[600px] w-full order-2 lg:order-1">
             <div className="absolute inset-4 border border-brand-gold/30 z-20"></div>
             <img
-              src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=2776&auto=format&fit=crop"
+              src="/images/GraziellaBio.jpg"
               alt="Graziella DeSouza"
               className="absolute inset-0 w-full h-full object-cover z-10 grayscale hover:grayscale-0 transition-all duration-1000 ease-in-out shadow-2xl"
             />
@@ -33,10 +33,10 @@ const AboutPage: React.FC = () => {
           <h2 className="font-serif text-4xl md:text-5xl text-brand-navy mb-8">Welcome!</h2>
           <div className="space-y-6 text-brand-navy/70 text-lg leading-relaxed">
             <p>
-              I'm Graziella, a passionate and dedicated Health Coach with a mission to empower individuals to achieve their best selves. Over the years, I have had the privilege of helping countless clients transform their lives, guiding them on a journey to better health, sustainable weight management, and profound personal growth.
+              I'm Graziella Cialone de Souza—a Nutrition and Lifestyle Coach who spent years helping clients one-on-one before realizing I could reach more people through technology. The 2Equilibrium app is my wellness system transformed into an accessible, lifetime companion that empowers you to transform at your own pace.
             </p>
             <p>
-              With an extensive background and multiple certifications in the health and wellness industry, I bring a unique blend of expertise and empathy to each client I work with.
+              With extensive certifications across multiple disciplines, I've distilled decades of knowledge into daily lessons designed for busy lives. This isn't generic advice—it's proven strategies that worked for hundreds of clients, now available in your pocket whenever you need them.
             </p>
           </div>
         </div>
@@ -76,31 +76,31 @@ const AboutPage: React.FC = () => {
           <h2 className="font-serif text-4xl md:text-5xl text-brand-navy mb-8">My Philosophy</h2>
           <div className="space-y-6 text-brand-navy/70 text-lg leading-relaxed">
             <p>
-              I believe that true transformation starts from within, which is why I integrate life coaching and positive psychology to help clients build lasting habits, boost self-confidence, and foster a mindset geared toward success.
+              True transformation starts from within. That's why every lesson in the 2Equilibrium app integrates life coaching principles, positive psychology, and mindfulness alongside nutrition and movement guidance. You're not just learning what to eat—you're building the mindset that sustains lifelong wellness.
             </p>
             <p>
-              Whether we're focusing on developing a nutrition plan tailored to your unique needs, creating a fitness regimen that you'll love, or exploring genetics-based insights for more effective results, I'm here to guide you every step of the way.
+              The app uses intelligent frameworks informed by genetics-based program design, but delivers it in a gentle, nurturing way. Each daily lesson is designed to feel like having a supportive coach in your corner—one who respects your pace, celebrates small wins, and never makes you feel guilty for being human.
             </p>
             <p className="font-serif text-2xl text-brand-navy/90 italic border-l-4 border-brand-gold pl-6 py-4">
-              "My goal is to create a supportive and encouraging environment where you feel heard, motivated, and empowered to make lasting changes."
+              "I created this app to be the supportive companion I wish everyone had—available 24/7, judgment-free, and designed around your real life."
             </p>
           </div>
         </div>
       </section>
 
-      {/* Partnership Approach Section */}
+      {/* App Features Section */}
       <section className="py-24 bg-brand-cream">
         <div className="max-w-4xl mx-auto px-6">
-          <h2 className="font-serif text-4xl md:text-5xl text-brand-navy mb-8">Working Together</h2>
+          <h2 className="font-serif text-4xl md:text-5xl text-brand-navy mb-8">What You'll Experience</h2>
           <div className="space-y-6 text-brand-navy/70 text-lg leading-relaxed">
             <p>
-              My approach centers on building a partnership with my clients. Together we identify and overcome any barriers holding you back, leveraging your strengths and aspirations to create a path toward your personal vision of health and well-being.
+              The 2Equilibrium app guides you through a Foundation phase with daily lessons that unlock progressively—no overwhelm, just steady growth. You'll journal your mood and energy, track your progress with visual analytics, and complete chapter quizzes to reinforce your learning.
             </p>
             <p>
-              If you're ready to take control of your health and experience a true transformation, I'm here to help. Let's embark on this journey together, unlocking your potential and paving the way for a healthier, happier, and more fulfilled life.
+              Every lesson includes action steps, reflection prompts, movement suggestions, daily affirmations, and nourishment tips. It's comprehensive yet manageable—designed for real people with busy lives who want sustainable transformation, not quick fixes that fade.
             </p>
             <p className="font-serif text-xl text-brand-gold italic mt-8">
-              Here's to your success and well-being,<br />
+              Here's to your wellness journey,<br />
               Graziella
             </p>
           </div>
@@ -132,13 +132,13 @@ const AboutPage: React.FC = () => {
       <section className="py-24 bg-brand-navy text-white">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="font-serif text-4xl md:text-5xl mb-6">
-            Unlock New Opportunities with 2Equilibrium
+            Start Your Transformation Today
           </h2>
           <p className="text-white/80 text-lg leading-relaxed mb-10">
-            Ready to begin your transformation journey? Let's work together to unlock your full potential and create the life you deserve.
+            Download the 2Equilibrium app and begin your transformation journey. Join thousands discovering that sustainable wellness doesn't require sacrifice—just the right guidance at the right pace.
           </p>
           <button className="bg-brand-gold text-brand-navy px-12 py-4 uppercase tracking-widest text-xs font-bold hover:bg-white transition-all duration-300">
-            Join Now
+            Download the App
           </button>
         </div>
       </section>
